@@ -12,7 +12,7 @@ const ProductCarousel = ({
   viewAllLink, 
   itemsToShow = 4,
   slidesToScroll = 1,
-  autoPlay = false,
+  autoPlay = true,
   autoPlayInterval = 3000,
   infinite = true
 }) => {
@@ -39,24 +39,21 @@ const ProductCarousel = ({
         breakpoint: 1200,
         settings: {
           slidesToShow: Math.min(itemsToShow, 3),
-          slidesToScroll: 1,
-          variableWidth: true
+          slidesToScroll: 1
         }
       },
       {
         breakpoint: 992,
         settings: {
           slidesToShow: Math.min(itemsToShow, 2),
-          slidesToScroll: 1,
-          variableWidth: true
+          slidesToScroll: 1
         }
       },
       {
         breakpoint: 576,
         settings: {
           slidesToShow: 1,
-          slidesToScroll: 1,
-          variableWidth: false
+          slidesToScroll: 1
         }
       }
     ];
@@ -73,60 +70,60 @@ const ProductCarousel = ({
     responsive: getResponsiveSettings(),
     nextArrow: <NextArrow />,
     prevArrow: <PrevArrow />,
-    vertical: false,
-    rtl: false,
-    centerMode: false,
-    adaptiveHeight: false,
-    cssEase: 'ease-out',
-    swipeToSlide: true,
-    variableWidth: true
+    cssEase: 'cubic-bezier(0.45, 0, 0.55, 1)',
+    pauseOnHover: true,
+    swipeToSlide: true
   };
 
   function NextArrow(props) {
     const { className, onClick } = props;
     return (
-      <div
-        className={`${className} carousel-arrow carousel-arrow-next`}
+      <button
+        className="carousel-nav-button carousel-nav-next"
         onClick={onClick}
+        aria-label="Next slide"
+        type="button"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M9 18l6-6-6-6" />
         </svg>
-      </div>
+      </button>
     );
   }
   
   function PrevArrow(props) {
     const { className, onClick } = props;
     return (
-      <div
-        className={`${className} carousel-arrow carousel-arrow-prev`}
+      <button
+        className="carousel-nav-button carousel-nav-prev"
         onClick={onClick}
+        aria-label="Previous slide"
+        type="button"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M15 18l-6-6 6-6" />
         </svg>
-      </div>
+      </button>
     );
   }
 
   return (
-    <div className="product-carousel-section">
-      <div className="section-header">
-        <h2 className="section-title">{title}</h2>
-        {viewAllLink && <Link href={viewAllLink} className="view-all-link">View All</Link>}
+    <section className="product-carousel-section">
+      <div className="carousel-header">
+        <h2 className="carousel-title">{title}</h2>
+        {viewAllLink && <Link href={viewAllLink} className="carousel-view-all">View All</Link>}
       </div>
       
-      <div className="carousel-container">
+      <div className="carousel-wrapper">
         <Slider ref={sliderRef} {...settings}>
           {React.Children.map(children, (child) => (
-            <div className="carousel-item-wrapper">
+            <div className="carousel-slide">
               {child}
             </div>
           ))}
         </Slider>
       </div>
-    </div>
+    </section>
   );
 };
 

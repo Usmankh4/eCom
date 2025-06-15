@@ -51,7 +51,7 @@ class FlashDeal(models.Model):
         ordering = ['-created_at']
     
     def __str__(self):
-        return f"{self.name} - {self.get_discount_percentage}% off"
+        return f"{self.name} - {self.discount_percentage}% off"
     
     def clean(self):
         # Validate dates

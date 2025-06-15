@@ -119,7 +119,7 @@ export default async function Home() {
 
   async function fetchFlashSales() {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/promotions/active-flash-sales/', {cache: 'no-store'});
+      const response = await fetch('http://127.0.0.1:8000/api/promotions/active-flash-deals/', {cache: 'no-store'});
       if (!response.ok) {
         throw new Error('Failed to fetch flash deals data');
       }
@@ -149,23 +149,18 @@ export default async function Home() {
     }
   }).slice(0,5);
 
-  const flashDealsArray = Array.isArray(flashSalesData) ? flashSalesData : [];
-  const flashDeals = flashDealsArray.flatMap(flashSale => 
-    flashSale.items.map(item => {
-      const details = item.item_details;
-      return {
-        id: item.id,
-        name: details.name || flashSale.name,
-        originalPrice: parseFloat(item.original_price || details.price),
-        salePrice: parseFloat(item.sale_price),
-        image: details.image_url || details.image || '/images/placeholder.png',
-        discount: item.discount_percentage ? `${item.discount_percentage}%` : 'Sale',
-        timeLeft: flashSale.end_date ? getTimeLeft(flashSale.end_date) : '5h 23m',
-        slug: details.slug || flashSale.slug,
-        type: details.storage ? 'phone' : 'accessory'
-      }
-    })
-  ).slice(0, 5);
+  const flashDeals = (flashSalesData || []).map(product => ({
+    id: product.id,
+    name: product.name,
+    originalPrice: parseFloat(product.original_price),
+    salePrice: parseFloat(product.sale_price),
+    discount: product.discount_percentage ? `${parseFloat(product.discount_percentage).toFixed(0)}%` : 'Sale',
+    image: product.image || '/images/placeholder.png',
+    slug: product.slug,
+    timeLeft: getTimeFromSeconds(product.time_remaining)
+  }));
+  
+   
 
 
   
@@ -227,7 +222,7 @@ export default async function Home() {
           <ProductCarousel 
             title="Flash Deals" 
             viewAllLink="/flash-deals"
-            itemsToShow={5}
+            itemsToShow={4}
             autoPlay={true}
             autoPlayInterval={6000}
           >
@@ -260,7 +255,7 @@ export default async function Home() {
           <ProductCarousel 
             title="Just Arrived" 
             viewAllLink="/new-arrivals"
-            itemsToShow={5}
+            itemsToShow={4}
             autoPlay={true}
             autoPlayInterval={5000}
           >
@@ -334,7 +329,7 @@ export default async function Home() {
           <ProductCarousel 
             title="Customer Favorites" 
             viewAllLink="/best-sellers"
-            itemsToShow={3}
+            itemsToShow={4}
           >
             {bestSellers.map((product) => (
               <Link key={product.id} href={`/product/${product.slug}`} className="product-card best-seller-card carousel-card">
@@ -434,13 +429,11 @@ export default async function Home() {
   );
 }
 
-function getTimeLeft(endTimeString) {
-  const endTime = new Date(endTimeString);
-  const now = new Date();
-  const timeLeft = endTime - now;
- 
-  if (timeLeft <= 0) return '0h 0m';
- 
-  const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-  const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+function getTimeFromSeconds(seconds) {
+  if (seconds <= 0) return '0h 0m';
+
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+
+  return `${hours}h ${minutes}m`;
 }
