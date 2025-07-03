@@ -10,7 +10,7 @@ from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
 
 from .models import Phone, PhoneVariant, Accessory
-from .serializers import PhoneSerializer, PhoneVariantSerializer, AccessorySerializer
+from .serializers import PhoneSerializer, PhoneVariantSerializer, AccessorySerializer, ProductCardSerializer
 from .services.product_service import ProductService
 
 
@@ -223,9 +223,6 @@ class NewArrivalsAPIView(APIView):
 
 
 class BestSellersAPIView(APIView):
-    """
-    API endpoint for getting all best sellers (phones and accessories)
-    """
     permission_classes = [AllowAny]
     pagination_class = ProductPagination
     
@@ -256,57 +253,116 @@ class BestSellersAPIView(APIView):
 
 
 class HomePageAPIView(APIView):
-    """
-    API endpoint for the homepage, combining multiple data sources
-    """
     permission_classes = [AllowAny]
     
     def get(self, request, format=None):
-        cache_key = 'homepage'
-        cached_data = cache.get(cache_key)
-        if cached_data:
-            return Response(cached_data)
+        import logging
+        logger = logging.getLogger(__name__)
         
-        # Get new arrivals
-        new_arrivals = ProductService.get_new_arrivals(limit=4)
+        # Use CacheService for consistent caching with tagging
+        from products.services.cache_service import CacheService
         
-        # Get best sellers
-        best_sellers = ProductService.get_best_sellers(limit=4)
+        # Generate query params for cache key
+        params = {k: v for k, v in request.query_params.items() if k not in ['refresh']}
         
-        featured_phones = Phone.objects.all()[:3]        
-        response_data = {
-            'new_arrivals': {
-                'phones': PhoneVariantSerializer(
-                    new_arrivals['phones'],
-                    many=True,
-                    context={'request': request}
-                ).data,
-                'accessories': AccessorySerializer(
-                    new_arrivals['accessories'],
-                    many=True,
-                    context={'request': request}
-                ).data
-            },
-            'best_sellers': {
-                'phones': PhoneVariantSerializer(
-                    best_sellers['phones'],
-                    many=True,
-                    context={'request': request}
-                ).data,
-                'accessories': AccessorySerializer(
-                    best_sellers['accessories'],
-                    many=True,
-                    context={'request': request}
-                ).data
-            },
-            'featured_phones': PhoneSerializer(
-                featured_phones,
-                many=True,
-                context={'request': request}
-            ).data
-        }
+        # Skip cache if refresh parameter is present
+        if not request.query_params.get('refresh'):
+            cached_data = CacheService.get('homepage', 'data', params)
+            if cached_data:
+                logger.debug("Returning cached homepage data")
+                return Response(cached_data)
         
-        # Cache for 15 minutes
-        cache.set(cache_key, response_data, 60 * 5)
+        try:
+            logger.debug("Fetching fresh homepage data")
+            
+            # Get new arrivals
+            new_arrivals = ProductService.get_new_arrivals(limit=4)
+            logger.debug(f"Fetched {len(new_arrivals['phones'])} new arrival phones and {len(new_arrivals['accessories'])} accessories")
+            
+            # Get best sellers
+            best_sellers = ProductService.get_best_sellers(limit=4)
+            logger.debug(f"Fetched {len(best_sellers['phones'])} best seller phones and {len(best_sellers['accessories'])} accessories")
+            
+            # Get featured phones (limit to 3)
+            featured_phones = Phone.objects.prefetch_related('variants').all()[:3]
+            logger.debug(f"Fetched {len(featured_phones)} featured phones")
+            
+            # Use the lightweight ProductCardSerializer for better performance
+            response_data = {
+                'new_arrivals': {
+                    'phones': ProductCardSerializer(
+                        new_arrivals['phones'],
+                        many=True,
+                        context={'request': request}
+                    ).data,
+                    'accessories': ProductCardSerializer(
+                        new_arrivals['accessories'],
+                        many=True,
+                        context={'request': request}
+                    ).data
+                },
+                'best_sellers': {
+                    'phones': ProductCardSerializer(
+                        best_sellers['phones'],
+                        many=True,
+                        context={'request': request}
+                    ).data,
+                    'accessories': ProductCardSerializer(
+                        best_sellers['accessories'],
+                        many=True,
+                        context={'request': request}
+                    ).data
+                },
+                'featured_phones': [
+                    {
+                        'id': phone.id,
+                        'name': phone.name,
+                        'slug': phone.slug,
+                        'brand': phone.brand,
+                        'variants_count': phone.variants.count(),
+                        'price_range': self._get_price_range(phone.variants.all())
+                    }
+                    for phone in featured_phones
+                ]
+            }
+            
+            # Cache with tags for precise invalidation
+            # This allows automatic invalidation when products change
+            CacheService.set(
+                'homepage', 'data', 
+                response_data,
+                timeout=60 * 5,  # 5 minutes
+                params=params,
+                tags=[
+                    'homepage',
+                    'new_arrivals',
+                    'best_sellers'
+                ]
+            )
+            logger.debug("Homepage data cached successfully with tags")
+            
+            return Response(response_data)
+            
+        except Exception as e:
+            logger.error(f"Error in HomePageAPIView: {str(e)}", exc_info=True)
+            return Response(
+                {"error": "An error occurred while fetching homepage data"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    def _get_price_range(self, variants):
+        """Helper method to get the price range for a phone's variants"""
+        if not variants:
+            return None
+            
+        prices = [variant.price for variant in variants if variant.is_active]
+        if not prices:
+            return None
+            
+        min_price = min(prices)
+        max_price = max(prices)
         
-        return Response(response_data)
+        if min_price == max_price:
+            return {'min': float(min_price), 'max': None}
+        else:
+            return {'min': float(min_price), 'max': float(max_price)}

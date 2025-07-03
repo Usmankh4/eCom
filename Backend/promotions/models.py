@@ -9,39 +9,23 @@ from django.conf import settings
 stripe.api_key = settings.STRIPE_SECRET_KEY if hasattr(settings, 'STRIPE_SECRET_KEY') else ''
 
 class FlashDeal(models.Model):
-   
-    # Basic product information
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     description = models.TextField(blank=True, null=True)
-    
-    # Product details
     brand = models.CharField(max_length=100, blank=True, null=True)
     color = models.CharField(max_length=50, blank=True, null=True)
     storage = models.CharField(max_length=50, blank=True, null=True)
-    
-    # Pricing
     original_price = models.DecimalField(max_digits=10, decimal_places=2)
     sale_price = models.DecimalField(max_digits=10, decimal_places=2)
     discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, editable=False)
-    
-    # Inventory
     stock = models.PositiveIntegerField(default=0)
     reserved_stock = models.PositiveIntegerField(default=0)
-    
-    # Images
     image = models.ImageField(upload_to='flash_deals/', blank=True, null=True)
-    
-    # Flash deal timing
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     is_active = models.BooleanField(default=True)
-    
-    # Stripe integration
     stripe_price_id = models.CharField(max_length=100, blank=True, null=True)
     stripe_product_id = models.CharField(max_length=100, blank=True, null=True)
-    
-    # Metadata
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -54,19 +38,13 @@ class FlashDeal(models.Model):
         return f"{self.name} - {self.discount_percentage}% off"
     
     def clean(self):
-        # Validate dates
         if self.end_date <= self.start_date:
             raise ValidationError("End date must be after start date.")
-        
-        # Validate pricing
         if self.sale_price >= self.original_price:
             raise ValidationError("Sale price must be less than original price.")
-        
-        # Calculate discount percentage
         self.discount_percentage = self.calculate_discount_percentage()
     
     def save(self, *args, **kwargs):
-        # Generate slug if not provided
         if not self.slug:
             base_slug = slugify(self.name)
             if self.color:

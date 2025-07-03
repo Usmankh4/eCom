@@ -15,17 +15,19 @@ stripe.api_key = settings.STRIPE_SECRET_KEY if hasattr(settings, 'STRIPE_SECRET_
 
 
 class Phone(models.Model):
-    """
-    Model representing a phone product (base model).
-    Contains basic information about the phone.
-    """
-    name = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=255, unique=True, blank=True)
-    brand = models.CharField(max_length=100)
+    name = models.CharField(max_length=200, db_index=True)
+    slug = models.SlugField(max_length=255, unique=True, blank=True, db_index=True)
+    brand = models.CharField(max_length=100, db_index=True)
     description = models.TextField(blank=True, null=True)
     stripe_id = models.CharField(max_length=100, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['brand', 'name']),
+            models.Index(fields=['-created_at']),
+        ]
     
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -60,24 +62,29 @@ class Phone(models.Model):
 
 
 class PhoneVariant(models.Model):
-    """
-    Model representing a specific variant of a phone.
-    Contains detailed specifications and inventory information.
-    """
-    phone = models.ForeignKey(Phone, on_delete=models.CASCADE, related_name='variants')
-    sku = models.CharField(max_length=50, unique=True, blank=True)
+    phone = models.ForeignKey(Phone, on_delete=models.CASCADE, related_name='variants', db_index=True)
+    sku = models.CharField(max_length=50, unique=True, blank=True, db_index=True)
     color = models.CharField(max_length=100)
     storage = models.CharField(max_length=50)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=2, db_index=True)
     stock = models.PositiveIntegerField(default=0)
     reserved_stock = models.PositiveIntegerField(default=0)
     image = ImageField(upload_to='phones/', null=True, blank=True)
     stripe_price_id = models.CharField(max_length=100, null=True, blank=True)
-    is_active = models.BooleanField(default=True)
-    is_new_arrival = models.BooleanField(default=False)
-    is_best_seller = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True, db_index=True)
+    is_new_arrival = models.BooleanField(default=False, db_index=True)
+    is_best_seller = models.BooleanField(default=False, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['phone', 'is_active']),
+            models.Index(fields=['is_new_arrival', 'is_active']),
+            models.Index(fields=['is_best_seller', 'is_active']),
+            models.Index(fields=['-created_at', 'is_active']),
+            models.Index(fields=['price']),
+        ]
     
     def save(self, *args, **kwargs):
         if not self.sku:
@@ -124,22 +131,29 @@ class PhoneVariant(models.Model):
 
 
 class Accessory(models.Model):
-    """
-    Model representing phone accessories.
-    """
-    name = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=255, unique=True, blank=True)
+    name = models.CharField(max_length=200, db_index=True)
+    slug = models.SlugField(max_length=255, unique=True, blank=True, db_index=True)
     description = models.TextField(blank=True, null=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=2, db_index=True)
     stock = models.PositiveIntegerField(default=0)
     image = ImageField(upload_to='accessories/', null=True, blank=True)
     stripe_id = models.CharField(max_length=100, null=True, blank=True)
     stripe_price_id = models.CharField(max_length=100, null=True, blank=True)
-    is_active = models.BooleanField(default=True)
-    is_new_arrival = models.BooleanField(default=False)
-    is_best_seller = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True, db_index=True)
+    is_new_arrival = models.BooleanField(default=False, db_index=True)
+    is_best_seller = models.BooleanField(default=False, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['name', 'is_active']),
+            models.Index(fields=['is_new_arrival', 'is_active']),
+            models.Index(fields=['is_best_seller', 'is_active']),
+            models.Index(fields=['-created_at', 'is_active']),
+            models.Index(fields=['price']),
+        ]
+        verbose_name_plural = "Accessories"
 
     def save(self, *args, **kwargs):
         if not self.slug:

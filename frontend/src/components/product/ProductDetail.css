@@ -1,0 +1,269 @@
+/* Product Detail Page Styles */
+.ProductLayout {
+  display: flex;
+  justify-content: center;
+  margin: 110px;
+  padding: 150px;
+  margin-top: 50px;
+}
+
+.ProductContainer {
+  display: flex;
+  gap: 10px;
+}
+
+.ProductImage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 20px;
+  max-width: 500px;
+}
+
+.main-image-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  position: relative;
+  min-height: 400px;
+}
+
+.product-image {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.product-image:hover {
+  transform: scale(1.05);
+}
+
+.product-thumbnails {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 15px;
+  width: 100%;
+}
+
+.thumbnail {
+  width: 80px;
+  height: 80px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.thumbnail:hover {
+  border-color: #007bff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.thumbnail.active {
+  border: 2px solid #007bff;
+}
+
+.thumbnail-label {
+  font-size: 10px;
+  text-align: center;
+  padding: 2px;
+  background-color: rgba(255, 255, 255, 0.8);
+  width: 100%;
+}
+
+.ProductInfo {
+  display: flex;
+  flex-direction: column;
+  padding-left: 20px;
+  margin-left: 40px;
+}
+
+.ProductTitle {
+  margin: 0;
+}
+
+.ProductSelections {
+  display: inline-flex;
+  padding-left: 200px; 
+}
+
+.ColourSelection,
+.StorageSelection,
+.QuantitySelection,
+.ProductPrice {
+  margin-bottom: 10px;
+}
+
+.QuantitySelection {
+  display: flex;
+  align-items: center;
+  background-color: #fff; 
+  border: 1px solid #ddd; 
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+}
+
+.ColourSelection,
+.StorageSelection {
+  display: flex;
+  align-items: center;
+  background-color: #fff; 
+  border: 1px solid #ddd; 
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+}
+
+.ColourSelection select {
+  border-radius: none;
+}
+
+.ColourSelection select,
+.StorageSelection select {
+  border: none; 
+  outline: none; 
+  padding: 5px 10px; 
+  background-color: #f9f9f9; 
+  font-size: 16px; 
+  border-radius: 4px; 
+}
+
+.ColourAndStorage {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 10px;
+}
+
+.QuantitySelection button:hover {
+  background-color: #f2f2f2; 
+}
+
+.QuantitySelection button:active {
+  background-color: #8a8a8a; 
+}
+
+.QuantitySelection span {
+  display: inline-block; 
+  width: 36px; 
+  text-align: center; 
+  margin: 0 10px; 
+  user-select: none; 
+  font-size: 16px; 
+}
+
+.QuantitySelection button:first-child {
+  margin-right: -10px;
+  border: none;
+}
+
+.QuantitySelection button:last-child {
+  margin-left: -10px;
+  border: none;
+}
+
+.ProductPrice h3 {
+  color: #666666;
+  font: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.QuantitySelection button {
+  background-color: #fff;
+  border: none;
+  padding: 10px;
+  margin: 0;
+  font-size: 16px;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+}
+
+.cartButton button {
+  margin-top: 50px;
+  width: 350px;
+  background-color: #222222;
+  padding: 10px 10px;
+  border: none;
+  font-size: 1rem;
+  color: #FFFFFF; 
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.cartButton button:hover {
+  background-color: #444444;
+}
+
+.product-description {
+  margin-top: 30px;
+}
+
+.product-description h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.product-specifications {
+  margin-top: 20px;
+}
+
+.product-specifications h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.product-specifications ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.product-specifications li {
+  padding: 5px 0;
+  display: block;
+  color: #333;
+}
+
+/* Responsive styles for product detail page */
+@media (max-width: 1200px) {
+  .ProductLayout {
+    margin: 50px;
+    padding: 50px;
+  }
+  
+  .cartButton button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .ProductLayout {
+    margin: 20px;
+    padding: 20px;
+  }
+  
+  .ProductContainer {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .ProductInfo {
+    margin-left: 0;
+    padding-left: 0;
+    margin-top: 30px;
+    width: 100%;
+  }
+  
+  .ColourAndStorage {
+    flex-direction: column;
+  }
+}

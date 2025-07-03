@@ -31,7 +31,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG=True
 
 
-ALLOWED_HOSTS = ['localhost:3000', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'localhost:3000']
 
 
 
@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'store.apps.StoreConfig',  
-    'promotions.apps.PromotionsConfig',  
+    'promotions.apps.PromotionsConfig',
+    'products',  
 ]
 
 MIDDLEWARE = [
@@ -59,6 +60,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'products.middleware.CacheMonitorMiddleware',  # Add cache monitoring
 ]
 
 ROOT_URLCONF = "ecommerce.urls"
@@ -145,3 +147,88 @@ CORS_ALLOW_ALL_ORIGINS = os.getenv('CORS_ALLOW_ALL_ORIGINS', default=True)  # Fo
 # Stripe settings
 STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY')
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
+
+# Tiered cache settings for different content types
+# All times in seconds
+CACHE_SETTINGS = {
+    # Dynamic content - short cache times
+    'DYNAMIC_TTL': 60 * 5,  # 5 minutes for highly dynamic content
+    'BRAND_PRODUCTS_TTL': 60 * 10,  # 10 minutes for brand product listings
+    'HOMEPAGE_TTL': 60 * 15,  # 15 minutes for homepage content
+    
+    # Semi-dynamic content - medium cache times
+    'PRODUCT_DETAIL_TTL': 60 * 30,  # 30 minutes for product details
+    'CATEGORY_TTL': 60 * 60,  # 1 hour for category listings
+    
+    # Static content - long cache times
+    'STATIC_TTL': 60 * 60 * 24,  # 24 hours for static content
+    
+    # Version for cache key namespacing
+    'VERSION': 1,
+}
+
+# Set default cache TTL
+CACHE_TTL = CACHE_SETTINGS['DYNAMIC_TTL']
+CACHE_VERSION = CACHE_SETTINGS['VERSION']
+
+# Add to the bottom of your settings.py file
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",  # Redis server location
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            # Remove the parser class that's causing issues
+            "CONNECTION_POOL_KWARGS": {"max_connections": 100},
+            "SOCKET_CONNECT_TIMEOUT": 5,  # seconds
+            "SOCKET_TIMEOUT": 5,  # seconds
+        },
+        "KEY_PREFIX": "ecom"  # Prefix for all cache keys
+    }
+}
+
+# Session configuration - optional but recommended
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
+
+# Logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/django.log'),
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+        'products': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
+# Create logs directory if it doesn't exist
+os.makedirs(os.path.join(BASE_DIR, 'logs'), exist_ok=True)

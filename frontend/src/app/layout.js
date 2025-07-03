@@ -1,7 +1,7 @@
 import { Inter, Fira_Mono } from "next/font/google";
 import "./globals.css";
-import Header from "./components/header";
-
+import Header from "../components/layout/Header";
+import Footer from "../components/layout/Footer";
 const geistSans = Inter({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -23,9 +23,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <Header />
-        {children}
-      </body>
+  <Header />
+  <main>{children}</main>
+  <Footer />
+</body>
+      
     </html>
   );
 }
