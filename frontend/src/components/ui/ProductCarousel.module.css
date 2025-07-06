@@ -1,0 +1,153 @@
+/* ProductCarousel.module.css */
+
+/* Main container */
+.productCarouselSection {
+  padding: 1.5rem 0;
+  margin: 1.5rem 0;
+  width: 100%;
+}
+
+/* Header section */
+.carouselHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  padding: 0 1rem;
+}
+
+.carouselTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.carouselViewAll {
+  color: #2563eb;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.carouselViewAll:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+/* Carousel container */
+.carouselContainer {
+  position: relative;
+  padding: 0 1rem;
+  width: 100%;
+}
+
+/* Individual slide */
+.carouselSlide {
+  padding: 0 0.5rem;
+  outline: none;
+}
+
+/* Navigation buttons */
+.carouselNavButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+}
+
+.carouselNavButton:hover {
+  background-color: #f3f4f6;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.carouselNavPrev {
+  left: -20px;
+}
+
+.carouselNavNext {
+  right: -20px;
+}
+
+.carouselNavIcon {
+  width: 20px;
+  height: 20px;
+  color: #4b5563;
+}
+
+/* Dots navigation */
+.slickDotsContainer {
+  position: relative;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.slickDotsList {
+  display: inline-flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.slickDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #d1d5db;
+  border: none;
+  padding: 0;
+  margin: 0 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.slickDot.slickActive {
+  background-color: #2563eb;
+  width: 24px;
+  border-radius: 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .carouselHeader {
+    padding: 0 0.5rem;
+  }
+  
+  .carouselTitle {
+    font-size: 1.25rem;
+  }
+  
+  .carouselViewAll {
+    font-size: 0.8125rem;
+  }
+  
+  .carouselContainer {
+    padding: 0 0.5rem;
+  }
+  
+  .carouselSlide {
+    padding: 0 0.25rem;
+  }
+  
+  .carouselNavButton {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .carouselNavIcon {
+    width: 18px;
+    height: 18px;
+  }
+}

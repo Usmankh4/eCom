@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { Product, ProductImage as ProductImageType, PhoneVariant, Phone, Accessory } from '@/types/product';
-import ProductGallery from './ProductGallery';
-import ProductVariantSelector from './ProductVariantSelector';
-import ProductActions from './ProductActions';
-import ProductInfo from './ProductInfo';
+import { ProductGallery } from '../ui';
+import { ProductVariantSelector } from '../variants';
+import { ProductActions } from '../interactions';
+import { ProductInfo } from '../ui';
 import ProductWrapper from './ProductWrapper';
-import './ProductDetail.css';
+import '../styles/ProductDetail.css';
 
 interface ProductDetailProps {
   product: Product;

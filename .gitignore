@@ -103,3 +103,5 @@ ENV/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+
+.windsurf/rules/

@@ -10,18 +10,26 @@ export interface BaseProduct {
   price: number;
   originalPrice?: number;
   salePrice?: number;
+  compareAtPrice?: number; // Price before discount for comparison
   discount?: string | number;
-  image: string;
-  images?: ProductImage[];
+  image?: string;
+  images?: string[] | ProductImage[];
   isNew?: boolean;
   isBestSeller?: boolean;
   rating?: number;
+  reviewCount?: number;
   brand?: string;
   category?: string;
+  categories?: string[];
+  tags?: string[];
   description?: string;
   inStock?: boolean;
   stock?: number;
+  inventory?: number;
+  sku?: string;
   specifications?: Record<string, string | number>;
+  // For ProductDetails component that expects Record<string, string[]>
+  productVariants?: Record<string, string[]>;
 }
 
 // Phone specific properties
@@ -32,7 +40,7 @@ export interface Phone extends BaseProduct {
   screenSize?: string;
   camera?: string;
   processor?: string;
-  variants?: PhoneVariant[];
+  variants?: PhoneVariant[]; // Phone-specific variants
   colors?: { name: string; code?: string }[];
   storage_options?: { storage_amount: string; price: number }[];
   color_images?: { color_name: string; image: string }[];
@@ -61,7 +69,8 @@ export type Product = Phone | Accessory;
 // Add these properties to the Product type to make them available on both Phone and Accessory
 declare module '@/types/product' {
   interface BaseProduct {
-    variants?: PhoneVariant[];
+    // Using a different name to avoid conflict with Phone.variants
+    phoneVariants?: PhoneVariant[];
     colors?: { name: string; code?: string }[];
     storage_options?: { storage_amount: string; price: number }[];
     color_images?: { color_name: string; image: string }[];

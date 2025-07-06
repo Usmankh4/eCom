@@ -4,12 +4,12 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Product } from '@/types/product';
-import { formatPrice } from '../../utils/formatters';
+import { formatPrice } from '@/utils/formatters';
 import { useCart } from '@/hooks/useCart';
 import { useWishlist } from '@/hooks/useWishlist';
 import { ShoppingCartIcon, HeartIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
-import styles from './ProductCard.module.css';
+import styles from '../styles/ProductCard.module.css';
 
 interface ProductCardProps {
   product: Product;
